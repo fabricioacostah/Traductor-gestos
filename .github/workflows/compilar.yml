@@ -1,0 +1,33 @@
+name: Compilar ejecutable para Windows
+
+on: 
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: # Esto nos permite activar la compilación manualmente
+
+jobs:
+  build:
+    runs-on: windows-latest # Le pedimos a GitHub una PC con Windows
+    
+    steps:
+    - name: Descargar el código fuente
+      uses: actions/checkout@v4
+    
+    - name: Configurar Python Estable (3.11)
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        
+    - name: Instalar librerías necesarias
+      run: |
+        python -m pip install --upgrade pip
+        pip install opencv-python mediapipe pyinstaller
+        
+    - name: Crear el archivo .exe con PyInstaller
+      run: pyinstaller --onefile --collect-all mediapipe analizador.py
+      
+    - name: Subir el archivo compilado
+      uses: actions/upload-artifact@v4
+      with:
+        name: ejecutable-windows
+        path: dist/analizador.exe
